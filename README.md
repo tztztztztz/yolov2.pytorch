@@ -3,8 +3,8 @@
 This repository aims to learn and understand the YOLO algorithm. I am beginner of deep learning, and I found the best way to learn a deep learning algorithm is to implement it from scratch. So if you also feel this way, just follow this repo! The code in this projects is clean and easier to understand, and I also documented it as much as possible. 
 
 <div style="color:#0000FF" align="center">
-<img src="images/result3.png" width="250"/>
-<img src="images/result1.png" width="250"/> 
+<img src="images/result3.png" width="350"/>
+<img src="images/result1.png" width="350"/> 
 </div>
 
 ## Purpose
