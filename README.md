@@ -17,7 +17,7 @@ This repository aims to learn and understand the YOLO algorithm. I am a beginner
 - [ ] pretrained network
 - [ ] reorg layer
 - [ ] multi-scale training
-- [ ] reproduce origin paper's MAP
+- [ ] reproduce original paper's mAP
 
 ## Current Stage
 
