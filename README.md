@@ -30,7 +30,7 @@ The reported results is as follows:
 | VOC2007 train | VOC2007 train   | 84.7|
 | VOC2007 train  | VOC2007 test  | 10.7|
 
-Obviously, this model is in the overfitting. In another word, it is a low bias and high variance model. I guess the reason is that the number of data is too small, and I don't apply data augmentation and transfer learning. However, it proves our model is correct at least, right?
+Obviously, this model is in the overfitting situation. In another word, it is a low bias and high variance model. I guess the reason is that the number of data is too small, and I don't apply data augmentation and transfer learning. However, it proves our model is correct at least, right?
 
 I will keep on updating this repo in the next few months.
 
