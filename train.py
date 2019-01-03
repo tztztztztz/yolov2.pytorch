@@ -38,7 +38,7 @@ def parse_args():
                         help='use to cut down the number of roi',
                         default=10, type=int)
     parser.add_argument('--dataset', dest='dataset',
-                        default='pascal_voc', type=str)
+                        default='voc07trainval', type=str)
     parser.add_argument('--nw', dest='num_workers',
                         help='number of workers to load training data',
                         default=2, type=int)
@@ -52,15 +52,14 @@ def parse_args():
                         default=False, type=bool)
     parser.add_argument('--save_interval', dest='save_interval',
                         default=20, type=int)
-
     parser.add_argument('--cuda', dest='use_cuda',
                         default=False, type=bool)
-
     parser.add_argument('--resume', dest='resume',
                         default=False, type=bool)
-
     parser.add_argument('--checkpoint_epoch', dest='checkpoint_epoch',
                         default=160, type=int)
+    parser.add_argument('--exp_name', dest='exp_name',
+                        default='default', type=str)
 
     args = parser.parse_args()
     return args
@@ -83,11 +82,19 @@ def train():
 
     # initial tensorboardX writer
     if args.use_tfboard:
-        writer = SummaryWriter()
+        if args.exp_name == 'default':
+            writer = SummaryWriter()
+        else:
+            writer = SummaryWriter('runs/' + args.exp_name)
 
-    if args.dataset == 'pascal_voc':
+    if args.dataset == 'voc07train':
         args.imdb_name = 'voc_2007_train'
         args.imdbval_name = 'voc_2007_train'
+
+    elif args.dataset == 'voc07trainval':
+        args.imdb_name = 'voc_2007_trainval'
+        args.imdbval_name = 'voc_2007_trainval'
+
     else:
         raise NotImplementedError
 

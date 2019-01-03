@@ -113,7 +113,7 @@ def plot_boxes(im_data, boxes, gt_classes=None, class_names=None):
     Visualize the bounding boxes of objects in a image
 
     Arguments:
-    im_data -- PIL.Image object
+    im_data -- PIL.Image object or np.ndarray (read from cv2)
     boxes -- numpy array of shape (N, 4) N is number of boxes, (x1, y1, x2, y2)
     gt_classes -- numpy array of shape (N). ground truth class index 0 ~ (N-1)
     class_names -- list of string. class names
@@ -133,6 +133,9 @@ def plot_boxes(im_data, boxes, gt_classes=None, class_names=None):
         gt_classes = gt_classes.numpy() if gt_classes is not None else None
     elif isinstance(im_data, PIL.JpegImagePlugin.JpegImageFile):
         im_data = np.copy(np.array(im_data))
+    elif isinstance(im_data, np.ndarray):
+        # BGR to RGB
+        im_data = np.array(im_data[:, :, ::-1])
     else:
         raise NotImplementedError
     num_boxes = boxes.shape[0]

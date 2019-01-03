@@ -4,6 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 import torch
+import cv2
 import PIL
 from PIL import Image
 import numpy as np
@@ -19,7 +20,7 @@ class RoiDataset(Dataset):
 
     def roi_at(self, i):
         image_path = self._imdb.image_path_at(i)
-        im_data = Image.open(image_path)
+        im_data = cv2.imread(image_path)
         boxes = self._roidb[i]['boxes']
         gt_classes = self._roidb[i]['gt_classes']
 
@@ -28,12 +29,15 @@ class RoiDataset(Dataset):
     def __getitem__(self, i):
         im_data, boxes, gt_classes = self.roi_at(i)
 
-        w, h = im_data.size[0], im_data.size[1]
+        h, w = im_data.shape[0], im_data.shape[1]
 
         # resize image
         input_h, input_w = cfg.input_size
         scale_h, scale_w = input_h / h, input_w / w
-        im_data_resize = im_data.resize((input_h, input_w), Image.BILINEAR)
+        im_data_resize = cv2.resize(im_data, (input_h, input_w))
+
+        # BRG to RGB
+        im_data_resize = im_data_resize[:, :, ::-1]
 
         # copy boxes to avoid changing the objects in the roidb
         boxes = np.copy(boxes).astype(np.float32)
