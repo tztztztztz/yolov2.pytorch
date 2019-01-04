@@ -16,7 +16,8 @@ import torch
 
 def conv_bn_leaky(in_channels, out_channels, kernel_size, return_module=False):
     padding = int((kernel_size - 1) / 2)
-    layers = [nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=1, padding=padding),
+    layers = [nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size,
+                        stride=1, padding=padding, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.LeakyReLU(0.1, inplace=True)]
     if return_module:
@@ -47,7 +48,7 @@ class Darknet19(nn.Module):
         self.layer4 = self._make_layers(self.cfg['layer4'])
         self.layer5 = self._make_layers(self.cfg['layer5'])
 
-        self.conv = nn.Sequential(*conv_bn_leaky(self.in_channels, num_classes, kernel_size=1))
+        self.conv = nn.Conv2d(self.in_channels, num_classes, kernel_size=1, stride=1)
         self.avgpool = nn.AvgPool2d(kernel_size=7)
         self.softmax = nn.Softmax(dim=1)
 
