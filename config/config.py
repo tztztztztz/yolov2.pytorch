@@ -5,6 +5,8 @@ batch_size = 32
 lr = 0.001
 
 decay_lrs = {
+    1: 0.0001,
+    10: 0.001,
     60: 0.0001,
     90: 0.00001
 }
@@ -24,6 +26,10 @@ object_scale=5
 noobject_scale=1
 class_scale=1
 coord_scale=1
+
+saturation = 1.5
+exposure = 1.5
+hue=.1
 
 thresh = .6
 

@@ -21,7 +21,7 @@ def parse_args():
     parser.add_argument('--output_dir', dest='output_dir',
                         default='output', type=str)
     parser.add_argument('--model_name', dest='model_name',
-                        default='yolov2_epoch_40', type=str)
+                        default='yolov2_epoch_160', type=str)
     parser.add_argument('--nw', dest='num_workers',
                         help='number of workers to load training data',
                         default=1, type=int)

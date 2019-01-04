@@ -10,6 +10,7 @@ from PIL import Image
 import numpy as np
 from torch.utils.data import Dataset
 from config import config as cfg
+from util.augmentation import augment_img
 
 
 class RoiDataset(Dataset):
@@ -20,7 +21,7 @@ class RoiDataset(Dataset):
 
     def roi_at(self, i):
         image_path = self._imdb.image_path_at(i)
-        im_data = cv2.imread(image_path)
+        im_data = Image.open(image_path)
         boxes = self._roidb[i]['boxes']
         gt_classes = self._roidb[i]['gt_classes']
 
@@ -29,19 +30,23 @@ class RoiDataset(Dataset):
     def __getitem__(self, i):
         im_data, boxes, gt_classes = self.roi_at(i)
 
-        h, w = im_data.shape[0], im_data.shape[1]
+        w, h = im_data.size[0], im_data.size[1]
+
+        im_info = {'height': h, 'width': w}
+
+        img, boxes, gt_classes = augment_img(im_data, boxes, gt_classes, im_info)
 
         # resize image
         input_h, input_w = cfg.input_size
-        scale_h, scale_w = input_h / h, input_w / w
-        im_data_resize = cv2.resize(im_data, (input_h, input_w))
 
-        # BRG to RGB
-        im_data_resize = im_data_resize[:, :, ::-1]
+        scale_h, scale_w = input_h / h, input_w / w
+
+        im_data_resize = cv2.resize(img, (input_w, input_h))
 
         # copy boxes to avoid changing the objects in the roidb
         boxes = np.copy(boxes).astype(np.float32)
 
+        # TODO: the boxes will larger than (input_size - 1)
         boxes[:, 0::2] *= scale_w
         boxes[:, 1::2] *= scale_h
 

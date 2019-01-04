@@ -135,7 +135,7 @@ def plot_boxes(im_data, boxes, gt_classes=None, class_names=None):
         im_data = np.copy(np.array(im_data))
     elif isinstance(im_data, np.ndarray):
         # BGR to RGB
-        im_data = np.array(im_data[:, :, ::-1])
+        im_data = np.copy(np.array(im_data))
     else:
         raise NotImplementedError
     num_boxes = boxes.shape[0]
