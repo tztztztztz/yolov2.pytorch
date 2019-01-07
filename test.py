@@ -66,17 +66,17 @@ def prepare_im_data(img):
 
 def test():
     args = parse_args()
+    args.conf_thresh = 0.2
+    args.nms_thresh = 0.45
     print('Called with args:')
     print(args)
 
     # prepare dataset
 
-    if args.dataset == 'voc07train':
-        args.imdb_name = 'voc_2007_train'
-        args.imdbval_name = 'voc_2007_train'
+    if args.dataset == 'voc07trainval':
+        args.imdbval_name = 'voc_2007_trainval'
 
-    elif args.dataset == 'voc07trainval':
-        args.imdb_name = 'voc_2007_trainval'
+    elif args.dataset == 'voc07test':
         args.imdbval_name = 'voc_2007_test'
 
     else:
@@ -120,7 +120,7 @@ def test():
 
         yolo_output = model(im_data_variable)
         yolo_output = [item[0].data for item in yolo_output]
-        detections = yolo_eval(yolo_output, im_info, conf_threshold=0.6, nms_threshold=0.4)
+        detections = yolo_eval(yolo_output, im_info, conf_threshold=args.conf_thresh, nms_threshold=args.nms_thresh)
 
         if len(detections) > 0:
             for cls in range(val_imdb.num_classes):
