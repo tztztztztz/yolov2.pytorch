@@ -25,11 +25,17 @@ class Yolov2(nn.Module):
     num_classes = 20
     num_anchors = 5
 
-    def __init__(self, classes=None):
+    def __init__(self, classes=None, weights_file=False):
         super(Yolov2, self).__init__()
         if classes:
             self.num_classes = len(classes)
+
         darknet19 = Darknet19()
+
+        if weights_file:
+            print('load pretrained weight from {}'.format(weights_file))
+            darknet19.load_weights(weights_file)
+            print('pretrained weight loaded!')
 
         # darknet backbone
         self.conv1 = nn.Sequential(darknet19.layer0, darknet19.layer1,

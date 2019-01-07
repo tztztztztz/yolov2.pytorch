@@ -41,7 +41,7 @@ def parse_args():
                         default='voc07trainval', type=str)
     parser.add_argument('--nw', dest='num_workers',
                         help='number of workers to load training data',
-                        default=2, type=int)
+                        default=8, type=int)
     parser.add_argument('--output_dir', dest='output_dir',
                         default='output', type=str)
     parser.add_argument('--use_tfboard', dest='use_tfboard',
@@ -74,6 +74,7 @@ def train():
     args.weight_decay = cfg.weight_decay
     args.momentum = cfg.momentum
     args.batch_size = cfg.batch_size
+    args.pretrained_model = 'data/pretrained/darknet19_448.weights'
 
     print('Called with args:')
     print(args)
@@ -121,7 +122,7 @@ def train():
     # initialize the model
     print('initialize the model')
     tic = time.time()
-    model = Yolov2()
+    model = Yolov2(weights_file=args.pretrained_model)
     toc = time.time()
     print('model loaded: cost time {:.2f}s'.format(toc-tic))
 

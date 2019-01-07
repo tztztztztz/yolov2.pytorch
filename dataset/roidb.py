@@ -50,7 +50,7 @@ class RoiDataset(Dataset):
         boxes[:, 0::2] *= scale_w
         boxes[:, 1::2] *= scale_h
 
-        im_data_resize = torch.from_numpy(np.array(im_data_resize)).float()
+        im_data_resize = torch.from_numpy(np.array(im_data_resize)).float() / 255
         im_data_resize = im_data_resize.permute(2, 0, 1)
         boxes = torch.from_numpy(boxes)
         gt_classes = torch.from_numpy(gt_classes)

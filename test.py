@@ -57,7 +57,7 @@ def prepare_im_data(img):
     im_data = img.resize((H, W), Image.BILINEAR)
 
     # to torch tensor
-    im_data = torch.from_numpy(np.array(im_data)).float()
+    im_data = torch.from_numpy(np.array(im_data)).float() / 255
 
     im_data = im_data.permute(2, 0, 1).unsqueeze(0)
 
