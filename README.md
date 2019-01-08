@@ -26,7 +26,7 @@ Since this algothrim is implmented from scratch, there are many stages and resul
 The reported results is as follows:
 
 |id| train data | aug | pretrained|  mAP (on train) | mAP (on test)|
-| --- | ---------- | ---------- | --- | ---------- | --- |
+| :---: | :----------: | :----------: | :---: | :----------: | :---: |
 | 1 | 07 train | | |84.7| 10.7|
 | 2 | 07 trainval | | | 8x.x |17.x| 
 | 3 | 07 trainval|:white_check_mark: | | 73.2 | 34.6 |
