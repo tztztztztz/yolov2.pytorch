@@ -68,7 +68,7 @@ Then create some folder
 
 ## Demo
 
-Download the pretrained weights [Dropbox](https://www.dropbox.com/s/tqje3dctoaxbgmk/yolov2_epoch_160.pth?dl=0)
+Download the pretrained weights [Dropbox](https://www.dropbox.com/s/ktri39krexxpa5d/yolov2_epoch_160.pth?dl=0)
 
 Place the weights file in the `$ROOT/output` folder
 
