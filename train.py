@@ -79,7 +79,7 @@ def train():
     args.weight_decay = cfg.weight_decay
     args.momentum = cfg.momentum
     args.batch_size = cfg.batch_size
-    args.pretrained_model = 'data/pretrained/darknet19_448.weights'
+    args.pretrained_model = os.path.join('data', 'pretrained', 'darknet19_448.weights')
 
     print('Called with args:')
     print(args)
