@@ -42,7 +42,7 @@ Obviously, this model is in the over-fitting situation. In another word, it is a
 
 **stage3** With data augmentation technique, the mAP become much better than that of *stage 2*. However, We can notice that the performance on training set is worse, which means we encounter a optimization problem.
 
-**stage 4** I convert the weights data downloaded from [offical website](https://pjreddie.com/darknet/imagenet/), and change the input data value to 0 ~ 1. It turns out that the model can fit the data very well and is extremly helpful on model generalization.
+**stage 4** Transfer learning is applied. Breifly I first convert the weights data downloaded from [offical website](https://pjreddie.com/darknet/imagenet/) , then change the input data value to 0 ~ 1. It turns out that the model can fit the data very well and is extremly helpful on model generalization.
 
 **stage 5** Nothing new, just use more train data. I combine the data from voc 2007 trainval and voc 2012 trainval.
 
