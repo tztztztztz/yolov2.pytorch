@@ -74,6 +74,9 @@ Or with `gpu` mode
     wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
     wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
     wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCdevkit_08-Jun-2007.tar
+    
+    # download 2012 data
+    wget http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
     ```    
 
 
@@ -84,6 +87,9 @@ the data root path
     tar xvf VOCtrainval_06-Nov-2007.tar
     tar xvf VOCtest_06-Nov-2007.tar
     tar xvf VOCdevkit_08-Jun-2007.tar
+    
+    # 2012 data
+    tar xvf VOCtrainval_11-May-2012.tar
     ```
 
 3. It should have this basic structure
@@ -103,6 +109,10 @@ the data root path
     mkdir VOCdevkit2007
     cd VOCdevkit2007
     ln -s $VOCdevit/VOC2007 VOC2007
+    
+    # mkdir VOCdevkit2012
+    # cd VOCdevkit2012
+    # ln -s $VOCdevit/VOC2012 VOC2012
     ```
  
 ## Training

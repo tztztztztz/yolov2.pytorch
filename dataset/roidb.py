@@ -18,9 +18,10 @@ class RoiDataset(Dataset):
         super(RoiDataset, self).__init__()
         self._imdb = imdb
         self._roidb = imdb.roidb
+        self._image_paths = [self._imdb.image_path_at(i) for i in range(len(self._roidb))]
 
     def roi_at(self, i):
-        image_path = self._imdb.image_path_at(i)
+        image_path = self._image_paths[i]
         im_data = Image.open(image_path)
         boxes = self._roidb[i]['boxes']
         gt_classes = self._roidb[i]['gt_classes']
@@ -60,6 +61,11 @@ class RoiDataset(Dataset):
 
     def __len__(self):
         return len(self._roidb)
+
+    def __add__(self, other):
+        self._roidb = self._roidb + other._roidb
+        self._image_paths = self._image_paths + other._image_paths
+        return self
 
 
 def detection_collate(batch):
@@ -104,6 +110,8 @@ class TinyRoiDataset(RoiDataset):
     def __init__(self, imdb, num_roi):
         super(TinyRoiDataset, self).__init__(imdb)
         self._roidb = self._roidb[:num_roi]
+
+
 
 
 

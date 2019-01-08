@@ -31,14 +31,8 @@ def parse_args():
                         default=160, type=int)
     parser.add_argument('--start_epoch', dest='start_epoch',
                         default=1, type=int)
-    parser.add_argument('--tiny_dataset', dest='tiny_dataset',
-                        help='whether use tiny dataset',
-                        default=False, type=bool)
-    parser.add_argument('--num_roi', dest='num_roi',
-                        help='use to cut down the number of roi',
-                        default=10, type=int)
     parser.add_argument('--dataset', dest='dataset',
-                        default='voc07trainval', type=str)
+                        default='voc0712trainval', type=str)
     parser.add_argument('--nw', dest='num_workers',
                         help='number of workers to load training data',
                         default=8, type=int)
@@ -63,6 +57,17 @@ def parse_args():
 
     args = parser.parse_args()
     return args
+
+
+def get_dataset(datasetnames):
+    names = datasetnames.split('+')
+    dataset = RoiDataset(get_imdb(names[0]))
+    print('load dataset {}'.format(names[0]))
+    for name in names[1:]:
+        tmp = RoiDataset(get_imdb(name))
+        dataset += tmp
+        print('load and add dataset {}'.format(name))
+    return dataset
 
 
 def train():
@@ -96,6 +101,9 @@ def train():
         args.imdb_name = 'voc_2007_trainval'
         args.imdbval_name = 'voc_2007_trainval'
 
+    elif args.dataset == 'voc0712trainval':
+        args.imdb_name = 'voc_2007_trainval+voc_2012_trainval'
+        args.imdbval_name ='voc_2007_test'
     else:
         raise NotImplementedError
 
@@ -105,12 +113,7 @@ def train():
 
     # load dataset
     print('loading dataset....')
-    train_imdb = get_imdb(args.imdb_name)
-
-    if args.tiny_dataset:
-        train_dataset = TinyRoiDataset(train_imdb, args.num_roi)
-    else:
-        train_dataset = RoiDataset(train_imdb)
+    train_dataset = get_dataset(args.imdb_name)
 
     print('dataset loaded.')
 
