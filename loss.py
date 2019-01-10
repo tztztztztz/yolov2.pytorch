@@ -106,10 +106,11 @@ def build_target(output, gt_data):
         ious = box_ious(box_pred, gt_boxes) # shape: (H * W * num_anchors, num_obj)
         ious = ious.view(-1, num_anchors, num_obj)
         max_iou, _ = torch.max(ious, dim=-1, keepdim=True) # shape: (H * W, num_anchors, 1)
-        iou_target[b] = max_iou
+
+        # iou_target[b] = max_iou
 
         # we ignore the gradient of predicted boxes whose IoU with any gt box is greater than cfg.threshold
-        iou_thresh_filter = max_iou > cfg.thresh
+        iou_thresh_filter = max_iou.view(-1) > cfg.thresh
         n_pos = torch.nonzero(iou_thresh_filter).numel()
 
         if n_pos > 0:
@@ -147,7 +148,8 @@ def build_target(output, gt_data):
             class_target[b, cell_idx, argmax_anchor_idx, :] = gt_class
             class_mask[b, cell_idx, argmax_anchor_idx, :] = 1
 
-            # update, iou mask
+            # update iou target and iou mask
+            iou_target[b, cell_idx, argmax_anchor_idx, :] = max_iou[cell_idx, argmax_anchor_idx, :]
             iou_mask[b, cell_idx, argmax_anchor_idx, :] = cfg.object_scale
 
     return iou_target.view(bsize, -1, 1), \

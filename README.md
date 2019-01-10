@@ -153,6 +153,8 @@ the data root path
  
     python test.py --cuda true
  
+ [comment]: # (inconsistent prior and predicting IOU (not objectiveness) lead to better results!! don't know why)
+ 
  
 
 

@@ -66,7 +66,7 @@ def prepare_im_data(img):
 
 def test():
     args = parse_args()
-    args.conf_thresh = 0.2
+    args.conf_thresh = 0.005
     args.nms_thresh = 0.45
     print('Called with args:')
     print(args)
