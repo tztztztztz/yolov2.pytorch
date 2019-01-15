@@ -13,6 +13,7 @@ import numpy as np
 from torch.autograd import Variable
 import torch
 import torch.nn.functional as F
+from util.network import WeightLoader
 
 
 def conv_bn_leaky(in_channels, out_channels, kernel_size, return_module=False):
@@ -97,58 +98,60 @@ class Darknet19(nn.Module):
 
     # very ugly code !! need to reconstruct
     def load_weights(self, weights_file):
-        def load_layer_weights(module, buf, start):
-            children = list(module.named_children())
-            for i in range(len(children)):
-                name, m = children[i]
-                if isinstance(m, torch.nn.Conv2d):
-                    conv = m
-                    bn = children[i + 1][1]
-                    num_w = conv.weight.data.numel()
-                    num_b = bn.weight.data.numel()
-                    bn.bias.data.copy_(torch.reshape(torch.from_numpy(buf[start:start + num_b]), bn.bias.data.size()))
-                    start += num_b
-                    bn.weight.data.copy_(
-                        torch.reshape(torch.from_numpy(buf[start:start + num_b]), bn.weight.data.size()))
-                    start += num_b
-                    bn.running_mean.data.copy_(
-                        torch.reshape(torch.from_numpy(buf[start:start + num_b]), bn.running_mean.data.size()))
-                    start += num_b
-                    bn.running_var.data.copy_(
-                        torch.reshape(torch.from_numpy(buf[start:start + num_b]), bn.running_var.data.size()))
-                    start += num_b
-                    conv.weight.data.copy_(
-                        torch.reshape(torch.from_numpy(buf[start:start + num_w]), conv.weight.data.size()))
-                    start += num_w
-            return start
-
-        fp = open(weights_file, 'rb')
-        header = np.fromfile(fp, count=4, dtype=np.int32)
-        buf = np.fromfile(fp, dtype=np.float32)
-        fp.close()
-        size = buf.size
-        start = 0
-
-        for name, m in self.named_children():
-            if 'layer' in name:
-                start = load_layer_weights(m, buf, start)
-            elif name == 'conv':
-                conv = m
-                num_w = conv.weight.data.numel()
-                num_b = conv.bias.data.numel()
-                conv.bias.data.copy_(torch.reshape(torch.from_numpy(buf[start:start + num_b]), conv.bias.data.size()))
-                start += num_b
-                conv.weight.data.copy_(
-                    torch.reshape(torch.from_numpy(buf[start:start + num_w]), conv.weight.data.size()))
-                start += num_w
-            elif name == 'avgpool':
-                pass
-            elif name == 'softmax':
-                pass
-            else:
-                raise NotImplementedError
-
-        assert start == size
+        weights_loader = WeightLoader()
+        weights_loader.load(self, weights_file)
+        # def load_layer_weights(module, buf, start):
+        #     children = list(module.named_children())
+        #     for i in range(len(children)):
+        #         name, m = children[i]
+        #         if isinstance(m, torch.nn.Conv2d):
+        #             conv = m
+        #             bn = children[i + 1][1]
+        #             num_w = conv.weight.data.numel()
+        #             num_b = bn.weight.data.numel()
+        #             bn.bias.data.copy_(torch.reshape(torch.from_numpy(buf[start:start + num_b]), bn.bias.data.size()))
+        #             start += num_b
+        #             bn.weight.data.copy_(
+        #                 torch.reshape(torch.from_numpy(buf[start:start + num_b]), bn.weight.data.size()))
+        #             start += num_b
+        #             bn.running_mean.data.copy_(
+        #                 torch.reshape(torch.from_numpy(buf[start:start + num_b]), bn.running_mean.data.size()))
+        #             start += num_b
+        #             bn.running_var.data.copy_(
+        #                 torch.reshape(torch.from_numpy(buf[start:start + num_b]), bn.running_var.data.size()))
+        #             start += num_b
+        #             conv.weight.data.copy_(
+        #                 torch.reshape(torch.from_numpy(buf[start:start + num_w]), conv.weight.data.size()))
+        #             start += num_w
+        #     return start
+        #
+        # fp = open(weights_file, 'rb')
+        # header = np.fromfile(fp, count=4, dtype=np.int32)
+        # buf = np.fromfile(fp, dtype=np.float32)
+        # fp.close()
+        # size = buf.size
+        # start = 0
+        #
+        # for name, m in self.named_children():
+        #     if 'layer' in name:
+        #         start = load_layer_weights(m, buf, start)
+        #     elif name == 'conv':
+        #         conv = m
+        #         num_w = conv.weight.data.numel()
+        #         num_b = conv.bias.data.numel()
+        #         conv.bias.data.copy_(torch.reshape(torch.from_numpy(buf[start:start + num_b]), conv.bias.data.size()))
+        #         start += num_b
+        #         conv.weight.data.copy_(
+        #             torch.reshape(torch.from_numpy(buf[start:start + num_w]), conv.weight.data.size()))
+        #         start += num_w
+        #     elif name == 'avgpool':
+        #         pass
+        #     elif name == 'softmax':
+        #         pass
+        #     else:
+        #         raise NotImplementedError
+        #
+        # assert start == size
 
 if __name__ == '__main__':
     im = np.random.randn(1, 3, 224, 224)
