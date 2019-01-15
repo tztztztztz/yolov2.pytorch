@@ -67,8 +67,8 @@ def xxyy2xywh(box):
 
     c_x = (box[:, 2] + box[:, 0]) / 2
     c_y = (box[:, 3] + box[:, 1]) / 2
-    w = box[:, 2] - box[:, 0] + 1
-    h = box[:, 3] - box[:, 1] + 1
+    w = box[:, 2] - box[:, 0]
+    h = box[:, 3] - box[:, 1]
 
     c_x = c_x.view(-1, 1)
     c_y = c_y.view(-1, 1)
@@ -90,10 +90,10 @@ def xywh2xxyy(box):
     xxyy_box -- tensor of shape (N, 4), box of (x1, y1, x2, y2) format
     """
 
-    x1 = box[:, 0] - (box[:, 2] - 1) / 2
-    y1 = box[:, 1] - (box[:, 3] - 1) / 2
-    x2 = box[:, 0] + (box[:, 2] - 1) / 2
-    y2 = box[:, 1] + (box[:, 3] - 1) / 2
+    x1 = box[:, 0] - (box[:, 2]) / 2
+    y1 = box[:, 1] - (box[:, 3]) / 2
+    x2 = box[:, 0] + (box[:, 2]) / 2
+    y2 = box[:, 1] + (box[:, 3]) / 2
 
     x1 = x1.view(-1, 1)
     y1 = y1.view(-1, 1)
@@ -158,6 +158,46 @@ def box_transform_inv(box, deltas):
     return pred_box
 
 
+# def generate_all_anchors(anchors, H, W):
+#     """
+#     Generate dense anchors given grid defined by (H,W)
+#
+#     Arguments:
+#     anchors -- tensor of shape (num_anchors, 2), pre-defined anchors (pw, ph) on each cell
+#     H -- int, grid height
+#     W -- int, grid width
+#
+#     Returns:
+#     all_anchors -- tensor of shape (H * W * num_anchors, 4) dense grid anchors (c_x, c_y, w, h)
+#     """
+#
+#     # number of anchors per cell
+#     A = anchors.size(0)
+#
+#     # number of cells
+#     K = H * W
+#
+#     shift_x, shift_y = torch.meshgrid([torch.arange(0, W), torch.arange(0, H)])
+#
+#     # transpose shift_x and shift_y because we want our anchors to be organized in H x W order
+#     shift_x = shift_x.t().contiguous()
+#     shift_y = shift_y.t().contiguous()
+#
+#     # shift_x is a long tensor, c_x is a float tensor
+#     c_x = shift_x.float() + 0.5
+#     c_y = shift_y.float() + 0.5
+#
+#     centers = torch.cat([c_x.view(-1, 1), c_y.view(-1, 1)], dim=-1)  # tensor of shape (h * w, 2), (cx, cy)
+#
+#     # add anchors width and height to centers
+#     all_anchors = torch.cat([centers.view(K, 1, 2).expand(K, A, 2),
+#                              anchors.view(1, A, 2).expand(K, A, 2)], dim=-1)
+#
+#     all_anchors = all_anchors.view(-1, 4)
+#
+#     return all_anchors
+
+
 def generate_all_anchors(anchors, H, W):
     """
     Generate dense anchors given grid defined by (H,W)
@@ -184,8 +224,8 @@ def generate_all_anchors(anchors, H, W):
     shift_y = shift_y.t().contiguous()
 
     # shift_x is a long tensor, c_x is a float tensor
-    c_x = shift_x.float() + 0.5
-    c_y = shift_y.float() + 0.5
+    c_x = shift_x.float()
+    c_y = shift_y.float()
 
     centers = torch.cat([c_x.view(-1, 1), c_y.view(-1, 1)], dim=-1)  # tensor of shape (h * w, 2), (cx, cy)
 
@@ -196,9 +236,6 @@ def generate_all_anchors(anchors, H, W):
     all_anchors = all_anchors.view(-1, 4)
 
     return all_anchors
-
-
-
 
 
 
