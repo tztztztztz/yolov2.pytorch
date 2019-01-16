@@ -11,6 +11,8 @@ from dataset.factory import get_imdb
 from yolo_eval import yolo_eval
 from util.visualize import draw_detection_boxes
 import matplotlib.pyplot as plt
+from util.network import WeightLoader
+from config import config as cfg
 
 
 def parse_args():
@@ -53,8 +55,8 @@ def prepare_im_data(img):
     im_info['width'], im_info['height'] = img.size
 
     # resize the image
-    H, W = 416, 416
-    im_data = img.resize((H, W), Image.BILINEAR)
+    H, W = cfg.input_size
+    im_data = img.resize((H, W))
 
     # to torch tensor
     im_data = torch.from_numpy(np.array(im_data)).float() / 255
@@ -86,6 +88,10 @@ def test():
 
     # load model
     model = Yolov2()
+    # weight_loader = WeightLoader()
+    # weight_loader.load(model, 'yolo-voc.weights')
+    # print('loaded')
+
     model_path = os.path.join(args.output_dir, args.model_name+'.pth')
     print('loading model from {}'.format(model_path))
     if torch.cuda.is_available():
@@ -126,7 +132,9 @@ def test():
             for cls in range(val_imdb.num_classes):
                 inds = torch.nonzero(detections[:, -1] == cls).view(-1)
                 if inds.numel() > 0:
-                    cls_det = detections[inds, :5]
+                    cls_det = torch.zeros((inds.numel(), 5))
+                    cls_det[:, :4] = detections[inds, :4]
+                    cls_det[:, 4] = detections[inds, 4] * detections[inds, 5]
                     all_boxes[cls][i] = cls_det.cpu().numpy()
 
         toc = time.time()
@@ -135,6 +143,8 @@ def test():
             i+1, dataset_size, toc-tic, int(1 / cost_time)))
 
         if args.vis:
+            if len(detections) == 0:
+                continue
             det_boxes = detections[:, :5].cpu().numpy()
             det_classes = detections[:, -1].long().cpu().numpy()
             # im2show = plot_boxes(img, det_boxes, det_classes, class_names=val_imdb.classes)
