@@ -106,12 +106,7 @@ def generate_prediction_boxes(deltas_pred):
 
     all_anchors_xywh = deltas_pred.new(*all_anchors_xywh.size()).copy_(all_anchors_xywh)
 
-    # simply use anchors(xxyy) instead of predicted boxes
     boxes_pred = box_transform_inv(all_anchors_xywh, deltas_pred)
-
-    # boxes_pred = xywh2xxyy(boxes_pred)
-
-    # boxes_pred = xywh2xxyy(all_anchors_xywh)
 
     return boxes_pred
 
