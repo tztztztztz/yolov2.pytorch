@@ -155,6 +155,8 @@ the data root path
  
  [comment]: # (inconsistent prior and predicting IOU (not objectiveness) lead to better results!! don't know why)
  
+ [comment]: # (batch size 64 -> 61.2 mAP, batch size 32 -> 58.7 mAP)
+ 
  
 
 
