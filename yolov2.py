@@ -20,6 +20,22 @@ from darknet import conv_bn_leaky
 from loss import build_target, yolo_loss
 
 
+class ReorgLayer(nn.Module):
+    def __init__(self, stride=2):
+        super(ReorgLayer, self).__init__()
+        self.stride = stride
+
+    def forward(self, x):
+        B, C, H, W = x.data.size()
+        ws = self.stride
+        hs = self.stride
+        x = x.view(B, C, int(H / hs), hs, int(W / ws), ws).transpose(3, 4).contiguous()
+        x = x.view(B, C, int(H / hs * W / ws), hs * ws).transpose(2, 3).contiguous()
+        x = x.view(B, C, hs * ws, int(H / hs), int(W / ws)).transpose(1, 2).contiguous()
+        x = x.view(B, hs * ws * C, int(H / hs), int(W / ws))
+        return x
+
+
 class Yolov2(nn.Module):
 
     num_classes = 20
@@ -47,8 +63,12 @@ class Yolov2(nn.Module):
         self.conv3 = nn.Sequential(conv_bn_leaky(1024, 1024, kernel_size=3, return_module=True),
                                    conv_bn_leaky(1024, 1024, kernel_size=3, return_module=True))
 
-        self.conv4 = nn.Sequential(conv_bn_leaky(1024, 1024, kernel_size=3, return_module=True),
+        self.downsampler = conv_bn_leaky(512, 64, kernel_size=1, return_module=True)
+
+        self.conv4 = nn.Sequential(conv_bn_leaky(1280, 1024, kernel_size=3, return_module=True),
                                    nn.Conv2d(1024, (5 + self.num_classes) * self.num_anchors, kernel_size=1))
+
+        self.reorg = ReorgLayer()
 
     def forward(self, x, gt_boxes=None, gt_classes=None, num_boxes=None, training=False):
         """
@@ -56,9 +76,14 @@ class Yolov2(nn.Module):
         gt_boxes, gt_classes, num_boxes: Tensor
         """
         x = self.conv1(x)
+        shortcut = self.reorg(self.downsampler(x))
         x = self.conv2(x)
         x = self.conv3(x)
+        x = torch.cat([shortcut, x], dim=1)
         out = self.conv4(x)
+
+        if cfg.debug:
+            print('check output', out.view(-1)[0:10])
 
         # out -- tensor of shape (B, num_anchors * (5 + num_classes), H, W)
         bsize, _, h, w = out.size()
@@ -77,7 +102,6 @@ class Yolov2(nn.Module):
         class_score = out[:, :, 5:]
         class_pred = F.softmax(class_score, dim=-1)
         delta_pred = torch.cat([xy_pred, hw_pred], dim=-1)
-
 
         if training:
             output_variable = (delta_pred, conf_pred, class_score)
