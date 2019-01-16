@@ -1,6 +1,6 @@
 debug = False
 
-batch_size = 32
+batch_size = 64
 
 lr = 0.001
 
