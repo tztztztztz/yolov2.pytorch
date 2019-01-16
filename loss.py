@@ -80,8 +80,13 @@ def build_target(output, gt_data):
     # note: the all anchors' xywh scale is normalized by the grid width and height, i.e. 13 x 13
     # this is very crucial because the predict output is normalized to 0~1, which is also
     # normalized by the grid width and height
-    all_anchors_xywh = generate_all_anchors(anchors, H, W) # shape: (H * W * num_anchors, 4), format: (x, y, w, h)
-    all_anchors_xywh = delta_pred_batch.new(*all_anchors_xywh.size()).copy_(all_anchors_xywh)
+    all_grid_xywh = generate_all_anchors(anchors, H, W) # shape: (H * W * num_anchors, 4), format: (x, y, w, h)
+    all_grid_xywh = delta_pred_batch.new(*all_grid_xywh.size()).copy_(all_grid_xywh)
+    all_anchors_xywh = all_grid_xywh.clone()
+    all_anchors_xywh[:, 0:2] += 0.5
+    if cfg.debug:
+        print('all grid: ', all_grid_xywh[:12, :])
+        print('all anchor: ', all_anchors_xywh[:12, :])
     all_anchors_xxyy = xywh2xxyy(all_anchors_xywh)
 
     # process over batches
@@ -99,13 +104,15 @@ def build_target(output, gt_data):
 
         # apply delta_pred to pre-defined anchors
         all_anchors_xywh = all_anchors_xywh.view(-1, 4)
-        box_pred = box_transform_inv(all_anchors_xywh, delta_pred)
+        box_pred = box_transform_inv(all_grid_xywh, delta_pred)
         box_pred = xywh2xxyy(box_pred)
 
         # for each anchor, its iou target is corresponded to the max iou with any gt boxes
         ious = box_ious(box_pred, gt_boxes) # shape: (H * W * num_anchors, num_obj)
         ious = ious.view(-1, num_anchors, num_obj)
         max_iou, _ = torch.max(ious, dim=-1, keepdim=True) # shape: (H * W, num_anchors, 1)
+        if cfg.debug:
+            print('ious', ious)
 
         # iou_target[b] = max_iou
 
@@ -119,7 +126,6 @@ def build_target(output, gt_data):
         # step 2: process box target and class target
         # calculate overlaps between anchors and gt boxes
         overlaps = box_ious(all_anchors_xxyy, gt_boxes).view(-1, num_anchors, num_obj)
-        all_anchors_xywh = all_anchors_xywh.view(-1, num_anchors, 4)
         gt_boxes_xywh = xxyy2xywh(gt_boxes)
 
         # iterate over all objects
@@ -138,9 +144,14 @@ def build_target(output, gt_data):
             overlaps_in_cell = overlaps[cell_idx, :, t]
             argmax_anchor_idx = torch.argmax(overlaps_in_cell)
 
-            assigned_anchor = all_anchors_xywh[cell_idx, argmax_anchor_idx, :].unsqueeze(0)
+            # TODO: σ(t_x), σ(t_y) are incorrect!!
+            assigned_grid = all_grid_xywh.view(-1, num_anchors, 4)[cell_idx, argmax_anchor_idx, :].unsqueeze(0)
             gt_box = gt_box_xywh.unsqueeze(0)
-            target_t = box_transform(assigned_anchor, gt_box)
+            target_t = box_transform(assigned_grid, gt_box)
+            if cfg.debug:
+                print('assigned_grid, ', assigned_grid)
+                print('gt: ', gt_box)
+                print('target_t, ', target_t)
             box_target[b, cell_idx, argmax_anchor_idx, :] = target_t.unsqueeze(0)
             box_mask[b, cell_idx, argmax_anchor_idx, :] = 1
 
@@ -150,6 +161,8 @@ def build_target(output, gt_data):
 
             # update iou target and iou mask
             iou_target[b, cell_idx, argmax_anchor_idx, :] = max_iou[cell_idx, argmax_anchor_idx, :]
+            if cfg.debug:
+                print(max_iou[cell_idx, argmax_anchor_idx, :])
             iou_mask[b, cell_idx, argmax_anchor_idx, :] = cfg.object_scale
 
     return iou_target.view(bsize, -1, 1), \
