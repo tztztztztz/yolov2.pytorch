@@ -36,8 +36,8 @@ def box_ious(box1, box2):
     # To feed a tensor 0 of same type and device with box1 and box2
     # we use tensor.new().fill_(0)
 
-    iw = torch.max(xi2 - xi1 + 1, box1.new(1).fill_(0))
-    ih = torch.max(yi2 - yi1 + 1, box1.new(1).fill_(0))
+    iw = torch.max(xi2 - xi1, box1.new(1).fill_(0))
+    ih = torch.max(yi2 - yi1, box1.new(1).fill_(0))
 
     inter = iw * ih
 
