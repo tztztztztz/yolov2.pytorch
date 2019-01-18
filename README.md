@@ -15,7 +15,7 @@ This repository aims to learn and understand the YOLO algorithm. I am a beginner
 - [x] pascal voc validation
 - [x] data augmentation
 - [x] pretrained network
-- [ ] reorg layer
+- [x] reorg layer
 - [ ] multi-scale training
 - [ ] reproduce original paper's mAP
 
@@ -25,13 +25,14 @@ Since this algothrim is implmented from scratch, there are many stages and resul
 
 The reported results is as follows:
 
-|id| train data | aug | pretrained|  mAP (on train) | mAP (on test)|
-| :---: | :----------: | :----------: | :---: | :----------: | :---: |
-| 1 | 07 train | | |84.7| 10.7|
-| 2 | 07 trainval | | | 8x.x |17.x| 
-| 3 | 07 trainval|:white_check_mark: | | 73.2 | 34.6 |
-| 4 | 07 trainval| :white_check_mark:| :white_check_mark:| 86.9 | 58.4 |
-| 5 | 07+12 trainval| :white_check_mark:| :white_check_mark:| 86.5 | 65.2 |
+|id| train data | aug | pretrained| reorg |mAP (on train) | mAP (on test)|
+| :---: | :----------: | :----------: | :---| :---: | :----------: | :---: |
+| 1 | 07 train | | | |84.7| 10.7|
+| 2 | 07 trainval | || | 8x.x |17.x| 
+| 3 | 07 trainval|:white_check_mark: | || 73.2 | 34.6 |
+| 4 | 07 trainval| :white_check_mark:| :white_check_mark:| |86.9 | 58.4 |
+| 5 | 07+12 trainval| :white_check_mark:| :white_check_mark:| |86.5 | 65.2 |
+| 6 | 07+12 trainval| :white_check_mark:| :white_check_mark:| :white_check_mark: |89.3 | 69.2|
 
 #### Results analysis
 
@@ -45,6 +46,8 @@ Obviously, this model is in the over-fitting situation. In another word, it is a
 **stage 4** Transfer learning is applied. Breifly I first convert the weights data downloaded from [offical website](https://pjreddie.com/darknet/imagenet/) , then change the input data value to 0 ~ 1. It turns out that the model can fit the data very well and is extremly helpful for model generalization.
 
 **stage 5** Nothing new, just use more train data. I combine the data from voc 2007 trainval and voc 2012 trainval.
+
+**stage 6** I fixed some bug on box encoding and decoding, which didn't improve the mAP. I change batch size from 64 to 16, and change initial learning rate from 1e-3 to 1e-4. At last I add reorg layer.
 
 
 I will keep on updating this repo in the next few months.
@@ -155,7 +158,7 @@ the data root path
  
  [comment]: # (inconsistent prior and predicting IOU (not objectiveness) lead to better results!! don't know why)
  
- [comment]: # (batch size 64 -> 61.2 mAP, batch size 32 -> 58.7 mAP)
+ [comment]: # (batch size 64 -> 61.2 mAP, batch size 32 -> 58.7 mAP. batch size 16 (with scale rule) -> 62.4 mAP)
  
  
 

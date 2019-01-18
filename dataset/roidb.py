@@ -95,7 +95,7 @@ def detection_collate(batch):
     # individual list
     bsize = len(batch)
     im_data, boxes, gt_classes, num_obj = zip(*batch)
-    max_num_obj= max([x.item() for x in num_obj])
+    max_num_obj = max([x.item() for x in num_obj])
     padded_boxes = torch.zeros((bsize, max_num_obj, 4))
     padded_classes = torch.zeros((bsize, max_num_obj,))
 
