@@ -107,7 +107,7 @@ class Yolov2(nn.Module):
             output_variable = (delta_pred, conf_pred, class_score)
             output_data = [v.data for v in output_variable]
             gt_data = (gt_boxes, gt_classes, num_boxes)
-            target_data = build_target(output_data, gt_data)
+            target_data = build_target(output_data, gt_data, h, w)
 
             target_variable = [Variable(v) for v in target_data]
             box_loss, iou_loss, class_loss = yolo_loss(output_variable, target_variable)

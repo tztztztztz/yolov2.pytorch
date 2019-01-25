@@ -128,20 +128,20 @@ def plot_boxes(im_data, boxes, gt_classes=None, class_names=None):
     im_data -- image data with boxes
     """
     if isinstance(im_data, torch.Tensor):
-        im_data = im_data.permute(1, 2, 0).numpy()
+        im_data = im_data.permute(1, 2, 0).numpy() * 255
+        im_data = im_data.astype(np.uint8)
         boxes = boxes.numpy()
         gt_classes = gt_classes.numpy() if gt_classes is not None else None
     elif isinstance(im_data, PIL.JpegImagePlugin.JpegImageFile):
         im_data = np.copy(np.array(im_data))
     elif isinstance(im_data, np.ndarray):
-        # BGR to RGB
         im_data = np.copy(np.array(im_data))
     else:
         raise NotImplementedError
     num_boxes = boxes.shape[0]
     for i in range(num_boxes):
         bbox = tuple(np.round(boxes[i, :]).astype(np.int64))
-        cv2.rectangle(im_data, bbox[0:2], bbox[2:4], (0, 204, 0), 2)
+        cv2.rectangle(im_data, bbox[0:2], bbox[2:4], (0, 205, 0), 2)
         if gt_classes is not None:
             class_name = class_names[gt_classes[i]]
             cv2.putText(im_data, '%s' % class_name, (bbox[0], bbox[1] + 15), cv2.FONT_HERSHEY_PLAIN,

@@ -14,7 +14,7 @@ from util.bbox import generate_all_anchors, xywh2xxyy, box_transform_inv, box_io
 import torch.nn.functional as F
 
 
-def build_target(output, gt_data):
+def build_target(output, gt_data, H, W):
     """
     Build the training target for output tensor
 
@@ -52,14 +52,7 @@ def build_target(output, gt_data):
 
     bsize = delta_pred_batch.size(0)
 
-    H, W = 13, 13  # hard code for now
     num_anchors = 5  # hard code for now
-
-    input_H = 416
-    input_W = 416
-
-    scale_H = H / input_H
-    scale_W = W / input_W
 
     # initial the output tensor
     # we use `tensor.new()` to make the created tensor has the same devices and data type as input tensor's
@@ -97,8 +90,9 @@ def build_target(output, gt_data):
         gt_classes = gt_classes_batch[b][:num_obj]
 
         # rescale ground truth boxes
-        gt_boxes[:, 0::2] *= scale_W
-        gt_boxes[:, 1::2] *= scale_H
+        gt_boxes[:, 0::2] *= W
+        gt_boxes[:, 1::2] *= H
+
 
         # step 1: process IoU target
 
@@ -144,7 +138,6 @@ def build_target(output, gt_data):
             overlaps_in_cell = overlaps[cell_idx, :, t]
             argmax_anchor_idx = torch.argmax(overlaps_in_cell)
 
-            # TODO: σ(t_x), σ(t_y) are incorrect!!
             assigned_grid = all_grid_xywh.view(-1, num_anchors, 4)[cell_idx, argmax_anchor_idx, :].unsqueeze(0)
             gt_box = gt_box_xywh.unsqueeze(0)
             target_t = box_transform(assigned_grid, gt_box)

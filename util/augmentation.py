@@ -1,12 +1,14 @@
 import cv2
 import numpy as np
+from PIL import Image
+from config import config as cfg
 
 
-def random_scale_translation(img, boxes, im_info, factor=0.2):
+def random_scale_translation(img, boxes, jitter=0.2):
     """
 
     Arguments:
-    img -- numpy.ndarray
+    img -- PIL.Image
     boxes -- numpy array of shape (N, 4) N is number of boxes
     factor -- max scale size
     im_info -- dictionary {width:, height:}
@@ -16,39 +18,38 @@ def random_scale_translation(img, boxes, im_info, factor=0.2):
     boxes -- numpy array of shape (N, 4)
     """
 
-    w = im_info['width']
-    h = im_info['height']
+    w, h = img.size
 
-    scale = np.random.uniform() * factor + 1
+    dw = int(w*jitter)
+    dh = int(h*jitter)
 
-    # scale img
-    scaled_img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
+    pl = np.random.randint(-dw, dw)
+    pr = np.random.randint(-dw, dw)
+    pt = np.random.randint(-dh, dh)
+    pb = np.random.randint(-dh, dh)
 
-    # scale boxes
-    boxes *= scale
+    # scaled width, scaled height
+    sw = w - pl - pr
+    sh = h - pt - pb
 
-    max_off_x = (scale - 1) * w
-    max_off_y = (scale - 1) * h
+    cropped = img.crop((pl, pt, pl + sw - 1, pt + sh - 1))
 
-    offx = int(np.random.uniform() * max_off_x)
-    offy = int(np.random.uniform() * max_off_y)
-
-    im_data = scaled_img[offy:(offy+h), offx:(offx+w)]
 
     # update boxes accordingly
-    boxes[:, 0::2] -= offx
-    boxes[:, 1::2] -= offy
+    boxes[:, 0::2] -= pl
+    boxes[:, 1::2] -= pt
 
     # clamp boxes
-    boxes[:, 0::2] = boxes[:, 0::2].clip(0, im_data.shape[1] - 1)
-    boxes[:, 1::2] = boxes[:, 1::2].clip(0, im_data.shape[0] - 1)
+    boxes[:, 0::2] = boxes[:, 0::2].clip(0, sw-1)
+    boxes[:, 1::2] = boxes[:, 1::2].clip(0, sh-1)
 
     # if flip
     if np.random.randint(2):
-        im_data = im_data[:, ::-1]
-        boxes[:, 0::2] = (w-1) - boxes[:, 2::-2]
+        cropped = cropped.transpose(Image.FLIP_LEFT_RIGHT)
+        boxes[:, 0::2] = (sw-1) - boxes[:, 2::-2]
 
-    return im_data, boxes
+
+    return cropped, boxes
 
 
 def convert_color(img, source, dest):
@@ -71,14 +72,45 @@ def convert_color(img, source, dest):
     return img
 
 
+def rand_scale(s):
+    scale = np.random.uniform(1, s)
+    if np.random.randint(1, 10000) % 2:
+        return scale
+    return 1./scale
+
+
+def random_distort(img, hue=.1, sat=1.5, val=1.5):
+
+    hue = np.random.uniform(-hue, hue)
+    sat = rand_scale(sat)
+    val = rand_scale(val)
+
+    img = img.convert('HSV')
+    cs = list(img.split())
+    cs[1] = cs[1].point(lambda i: i * sat)
+    cs[2] = cs[2].point(lambda i: i * val)
+
+    def change_hue(x):
+        x += hue * 255
+        if x > 255:
+            x -= 255
+        if x < 0:
+            x += 255
+        return x
+
+    cs[0] = cs[0].point(change_hue)
+    img = Image.merge(img.mode, tuple(cs))
+
+    img = img.convert('RGB')
+    return img
+
+
 def random_hue(img, rate=.1):
     """
     adjust hue
-
     Arguments:
     img -- numpy.ndarray
     rate -- float, factor used to adjust hue
-
     Returns:
     img -- numpy.ndarray
     """
@@ -136,7 +168,7 @@ def random_exposure(img, rate=1.5):
     return img
 
 
-def augment_img(img, boxes, gt_classes, im_info):
+def augment_img(img, boxes, gt_classes):
     """
     Apply data augmentation.
     1. convert color to HSV
@@ -158,19 +190,12 @@ def augment_img(img, boxes, gt_classes, im_info):
     au_gt_classes -- numpy array of shape (N). ground truth class index 0 ~ (N-1)
     """
 
-    img = np.array(img).astype(np.float32)
+    # img = np.array(img).astype(np.float32)
     boxes = np.copy(boxes).astype(np.float32)
-    img = convert_color(img, source='RGB', dest='HSV')
 
-    # adjust color
-    img = random_hue(img)
-    img = random_saturation(img)
-    img = random_exposure(img)
+    img, boxes = random_scale_translation(img, boxes)
 
-    img = convert_color(img, source='HSV', dest='RGB')
-
-    img, boxes = random_scale_translation(img, boxes, im_info)
-
+    img = random_distort(img, cfg.hue, cfg.saturation, cfg.exposure)
     return img, boxes, gt_classes
 
 

@@ -12,6 +12,8 @@ import torch
 from config import config as cfg
 from util.bbox import generate_all_anchors, xywh2xxyy, box_transform_inv, xxyy2xywh
 from util.bbox import box_ious
+import time
+from config import config as cfg
 
 
 def yolo_filter_boxes(boxes_pred, conf_pred, classes_pred, confidence_threshold=0.6):
@@ -145,7 +147,7 @@ def scale_boxes(boxes, im_info):
     return boxes
 
 
-def yolo_eval(yolo_output, im_info, conf_threshold=0.6, nms_threshold=0.4,):
+def yolo_eval(yolo_output, im_info, conf_threshold=0.6, nms_threshold=0.4):
     """
     Evaluate the yolo output, generate the final predicted boxes
 
@@ -165,9 +167,9 @@ def yolo_eval(yolo_output, im_info, conf_threshold=0.6, nms_threshold=0.4,):
     detections -- tensor of shape (None, 7) (x1, y1, x2, y2, cls_conf, cls)
     """
 
-    deltas = yolo_output[0]
-    conf = yolo_output[1]
-    classes = yolo_output[2]
+    deltas = yolo_output[0].cpu()
+    conf = yolo_output[1].cpu()
+    classes = yolo_output[2].cpu()
 
     num_classes = classes.size(1)
     # apply deltas to anchors
