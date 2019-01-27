@@ -47,9 +47,6 @@ def random_scale_translation(img, boxes, jitter=0.2):
         cropped = cropped.transpose(Image.FLIP_LEFT_RIGHT)
         boxes[:, 0::2] = (sw-1) - boxes[:, 2::-2]
 
-    keep = (boxes[:, 0] != boxes[:, 2]) & (boxes[:, 1] != boxes[:, 3])
-    boxes = boxes[keep, :]
-
     return cropped, boxes
 
 
@@ -196,9 +193,12 @@ def augment_img(img, boxes, gt_classes):
 
     for i in range(5):
         img_t, boxes_t = random_scale_translation(img.copy(), boxes.copy(), jitter=cfg.jitter)
+        keep = (boxes_t[:, 0] != boxes_t[:, 2]) & (boxes_t[:, 1] != boxes_t[:, 3])
+        boxes_t = boxes_t[keep, :]
         if boxes_t.shape[0] > 0:
             img = img_t
             boxes = boxes_t
+            gt_classes = gt_classes[keep]
             break
 
     img = random_distort(img, cfg.hue, cfg.saturation, cfg.exposure)
