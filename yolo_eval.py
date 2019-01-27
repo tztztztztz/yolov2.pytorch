@@ -100,8 +100,8 @@ def generate_prediction_boxes(deltas_pred):
     boxes_pred -- tensor of shape (H * W * num_anchors, 4)  (x1, y1, x2, y2)
     """
 
-    H = 13 # hard code for now
-    W = 13 # hard code for now
+    H = int(cfg.test_input_size[0] / cfg.strides)
+    W = int(cfg.test_input_size[1] / cfg.strides)
 
     anchors = torch.FloatTensor(cfg.anchors)
     all_anchors_xywh = generate_all_anchors(anchors, H, W) # shape: (H * W * num_anchors, 4), format: (x, y, w, h)
@@ -129,7 +129,7 @@ def scale_boxes(boxes, im_info):
     h = im_info['height']
     w = im_info['width']
 
-    input_h, input_w = cfg.input_size
+    input_h, input_w = cfg.test_input_size
     scale_h, scale_w = input_h / h, input_w / w
 
     # scale the boxes
@@ -173,6 +173,7 @@ def yolo_eval(yolo_output, im_info, conf_threshold=0.6, nms_threshold=0.4):
 
     num_classes = classes.size(1)
     # apply deltas to anchors
+
     boxes = generate_prediction_boxes(deltas)
 
     if cfg.debug:

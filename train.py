@@ -13,7 +13,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from dataset.factory import get_imdb
-from dataset.roidb import RoiDataset, TinyRoiDataset, detection_collate
+from dataset.roidb import RoiDataset, detection_collate
 from yolov2 import Yolov2
 from torch import optim
 from util.network import adjust_learning_rate
@@ -168,7 +168,17 @@ def train():
             adjust_learning_rate(optimizer, lr)
             print('adjust learning rate to {}'.format(lr))
 
+        if cfg.multi_scale and epoch in cfg.epoch_scale:
+            cfg.scale_range = cfg.epoch_scale[epoch]
+            print('change scale range to {}'.format(cfg.scale_range))
+
         for step in range(iters_per_epoch):
+
+            if cfg.multi_scale and (step + 1) % cfg.scale_step == 0:
+                scale_index = np.random.randint(*cfg.scale_range)
+                cfg.input_size = cfg.input_sizes[scale_index]
+                print('change input size {}'.format(cfg.input_size))
+
             im_data, boxes, gt_classes, num_obj = next(train_data_iter)
             if args.use_cuda:
                 im_data = im_data.cuda()

@@ -13,8 +13,34 @@ momentum = 0.9
 weight_decay = 0.0005
 
 
+# multi-scale training:
+# {k: epoch, v: scale range}
+multi_scale = True
+
+# number of steps to change input size
+scale_step = 40
+
+scale_range = (3, 4)
+
+epoch_scale = {
+    1:  (3, 4),
+    15: (2, 5),
+    30: (1, 6),
+    60: (0, 7),
+    75: (0, 9)
+}
+
+input_sizes = [(320, 320),
+               (352, 352),
+               (384, 384),
+               (416, 416),
+               (448, 448),
+               (480, 480),
+               (512, 512),
+               (544, 544),
+               (576, 576)]
+
 input_size = (416, 416)
-output_size = (13, 13)
 
 test_input_size = (416, 416)
 
@@ -30,6 +56,8 @@ coord_scale=1
 saturation = 1.5
 exposure = 1.5
 hue=.1
+
+jitter = 0.3
 
 thresh = .6
 
