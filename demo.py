@@ -9,6 +9,7 @@ from yolov2 import Yolov2
 from yolo_eval import yolo_eval
 from util.visualize import draw_detection_boxes
 import matplotlib.pyplot as plt
+from util.network import WeightLoader
 
 
 def parse_args():
@@ -40,13 +41,17 @@ def demo():
                          'sheep', 'sofa', 'train', 'tvmonitor')
 
     model = Yolov2()
-    model_path = os.path.join(args.output_dir, args.model_name + '.pth')
-    print('loading model from {}'.format(model_path))
-    if torch.cuda.is_available():
-        checkpoint = torch.load(model_path)
-    else:
-        checkpoint = torch.load(model_path, map_location='cpu')
-    model.load_state_dict(checkpoint['model'])
+    weight_loader = WeightLoader()
+    weight_loader.load(model, 'yolo-voc.weights')
+    print('loaded')
+
+    # model_path = os.path.join(args.output_dir, args.model_name + '.pth')
+    # print('loading model from {}'.format(model_path))
+    # if torch.cuda.is_available():
+    #     checkpoint = torch.load(model_path)
+    # else:
+    #     checkpoint = torch.load(model_path, map_location='cpu')
+    # model.load_state_dict(checkpoint['model'])
 
     if args.use_cuda:
         model.cuda()
