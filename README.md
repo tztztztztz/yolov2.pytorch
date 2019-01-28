@@ -54,7 +54,7 @@ Then create some folder
 Download the pretrained weights
 
 ```
-wget http://pjreddie.com/media/files/yolo.weights
+wget http://pjreddie.com/media/files/yolo-voc.weights
 ```
 
 You can run the demo with `cpu` mode
