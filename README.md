@@ -16,53 +16,33 @@ This repository aims to learn and understand the YOLO algorithm. I am a beginner
 - [x] data augmentation
 - [x] pretrained network
 - [x] reorg layer
-- [ ] multi-scale training
+- [x] multi-scale training
 - [ ] reproduce original paper's mAP
 
-## Stages and Results
+## Main Results
 
-Since this algothrim is implmented from scratch, there are many stages and results which is very helpful for us to understand each component and how to improve it.
+| | training set | test set | mAP@416 | mAP@544 |
+| :--: | :--: | :--: | :--: | :--: |
+|this repo|VOC2007+2012|VOC2007|72.7|74.6|
+|original paper|VOC2007+2012|VOC2007|76.8|78.6|
 
-The reported results is as follows:
-
-|id| train data | aug | pretrained| reorg |mAP (on train) | mAP (on test)|
-| :---: | :----------: | :----------: | :---| :---: | :----------: | :---: |
-| 1 | 07 train | | | |84.7| 10.7|
-| 2 | 07 trainval | || | 8x.x |17.x| 
-| 3 | 07 trainval|:white_check_mark: | || 73.2 | 34.6 |
-| 4 | 07 trainval| :white_check_mark:| :white_check_mark:| |86.9 | 58.4 |
-| 5 | 07+12 trainval| :white_check_mark:| :white_check_mark:| |86.5 | 65.2 |
-| 6 | 07+12 trainval| :white_check_mark:| :white_check_mark:| :white_check_mark: |89.3 | 69.2|
-
-#### Results analysis
-
-**stage1**
-Obviously, this model is in the over-fitting situation. In another word, it is a low bias and high variance model. I guess the reason is that the number of data is too small, and I don't apply data augmentation and transfer learning. However, it proves our model is correct at least, right?
-
-**stage2** I use more data including train set and validation set. The performance is better, though it's still over-fitting.
-
-**stage3** With data augmentation technique, the mAP become much better than that of *stage 2*. However, We can notice that the performance on training set is worse, which means we encounter a optimization problem.
-
-**stage 4** Transfer learning is applied. Breifly I first convert the weights data downloaded from [offical website](https://pjreddie.com/darknet/imagenet/) , then change the input data value to 0 ~ 1. It turns out that the model can fit the data very well and is extremly helpful for model generalization.
-
-**stage 5** Nothing new, just use more train data. I combine the data from voc 2007 trainval and voc 2012 trainval.
-
-**stage 6** I fixed some bug on box encoding and decoding, which didn't improve the mAP. I change batch size from 64 to 16, and change initial learning rate from 1e-3 to 1e-4. At last I add reorg layer.
-
-
-I will keep on updating this repo in the next few months.
 
 ## Prerequisites
 - python 3.5.x
 - pytorch 0.4.1
 - tensorboardX
 - opencv3
+- pillow
 
 ## Preparation
 
 First clone the code
 
     git clone https://github.com/tztztztztz/yolov2.pytorch.git
+    
+Install dependencies
+
+	pip install -r requirements.txt
 
 Then create some folder
 
@@ -71,9 +51,11 @@ Then create some folder
 
 ## Demo
 
-Download the pretrained weights [Dropbox](https://www.dropbox.com/s/ktri39krexxpa5d/yolov2_epoch_160.pth?dl=0)
+Download the pretrained weights
 
-Place the weights file in the `$ROOT/output` folder
+```
+wget http://pjreddie.com/media/files/yolo.weights
+```
 
 You can run the demo with `cpu` mode
 
@@ -155,10 +137,7 @@ the data root path
 ## Testing 
  
     python test.py --cuda true
- 
- [comment]: # (inconsistent prior and predicting IOU (not objectiveness) lead to better results!! don't know why)
- 
- [comment]: # (batch size 64 -> 61.2 mAP, batch size 32 -> 58.7 mAP. batch size 16 (with scale rule) -> 62.4 mAP)
+
  
  
 

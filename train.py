@@ -39,7 +39,7 @@ def parse_args():
     parser.add_argument('--output_dir', dest='output_dir',
                         default='output', type=str)
     parser.add_argument('--use_tfboard', dest='use_tfboard',
-                        default=True, type=bool)
+                        default=False, type=bool)
     parser.add_argument('--display_interval', dest='display_interval',
                         default=10, type=int)
     parser.add_argument('--mGPUs', dest='mGPUs',
