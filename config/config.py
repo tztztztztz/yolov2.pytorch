@@ -1,12 +1,25 @@
-debug = False
+anchors = [[1.3221, 1.73145], [3.19275, 4.00944], [5.05587, 8.09892], [9.47112, 4.84053], [11.2364, 10.0071]]
+
+object_scale = 5
+noobject_scale = 1
+class_scale = 1
+coord_scale = 1
+
+saturation = 1.5
+exposure = 1.5
+hue = .1
+
+jitter = 0.3
+
+thresh = .6
 
 batch_size = 16
 
 lr = 0.0001
 
 decay_lrs = {
-    60: 0.00001,
-    90: 0.000001
+    91: 0.00001,
+    131: 0.000001
 }
 
 momentum = 0.9
@@ -46,18 +59,5 @@ test_input_size = (416, 416)
 
 strides = 32
 
-anchors = [[1.3221, 1.73145], [3.19275, 4.00944], [5.05587, 8.09892], [9.47112, 4.84053], [11.2364, 10.0071]]
-
-object_scale=5
-noobject_scale=1
-class_scale=1
-coord_scale=1
-
-saturation = 1.5
-exposure = 1.5
-hue=.1
-
-jitter = 0.3
-
-thresh = .6
+debug = False
 

@@ -127,11 +127,14 @@ the data root path
 
 
 ### Train the model
+
     python train.py --cuda true
      
- if you want use multiple GPUs to accelerate the training. you can use the command below.
+ If you want use multiple GPUs to accelerate the training. you can use the command below.
  
     python train.py --cuda true --mGPUs true
+
+**NOTE**: Multi-scale training uses more GPU memory. If you have only one GPU with 8G memory, it's better to set `multi-scale=False` in `config/config.py`. See [link](https://github.com/tztztztztz/yolov2.pytorch/blob/master/config/config.py#L31).
     
     
 ## Testing 
