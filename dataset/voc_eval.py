@@ -100,7 +100,9 @@ def voc_eval(detpath,
   # first load gt
   if not os.path.isdir(cachedir):
     os.mkdir(cachedir)
+  # cachefile location is 'VOCdevkit/VOC2007/ImageSets/Main/'
   cachefile = os.path.join(cachedir, '%s_annots.pkl' % imagesetfile)
+  print('cache dir {}, cachefile {}, imagesetfile {}'.format(cachedir, cachefile, imagesetfile))
   # read list of images
   with open(imagesetfile, 'r') as f:
     lines = f.readlines()

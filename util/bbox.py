@@ -9,6 +9,7 @@ from __future__ import print_function
 
 import torch
 
+
 def box_ious(box1, box2):
     """
     Implement the intersection over union (IoU) between box1 and box2 (x1, y1, x2, y2)
@@ -156,46 +157,6 @@ def box_transform_inv(box, deltas):
 
     pred_box = torch.cat([c_x, c_y, w, h], dim=-1)
     return pred_box
-
-
-# def generate_all_anchors(anchors, H, W):
-#     """
-#     Generate dense anchors given grid defined by (H,W)
-#
-#     Arguments:
-#     anchors -- tensor of shape (num_anchors, 2), pre-defined anchors (pw, ph) on each cell
-#     H -- int, grid height
-#     W -- int, grid width
-#
-#     Returns:
-#     all_anchors -- tensor of shape (H * W * num_anchors, 4) dense grid anchors (c_x, c_y, w, h)
-#     """
-#
-#     # number of anchors per cell
-#     A = anchors.size(0)
-#
-#     # number of cells
-#     K = H * W
-#
-#     shift_x, shift_y = torch.meshgrid([torch.arange(0, W), torch.arange(0, H)])
-#
-#     # transpose shift_x and shift_y because we want our anchors to be organized in H x W order
-#     shift_x = shift_x.t().contiguous()
-#     shift_y = shift_y.t().contiguous()
-#
-#     # shift_x is a long tensor, c_x is a float tensor
-#     c_x = shift_x.float() + 0.5
-#     c_y = shift_y.float() + 0.5
-#
-#     centers = torch.cat([c_x.view(-1, 1), c_y.view(-1, 1)], dim=-1)  # tensor of shape (h * w, 2), (cx, cy)
-#
-#     # add anchors width and height to centers
-#     all_anchors = torch.cat([centers.view(K, 1, 2).expand(K, A, 2),
-#                              anchors.view(1, A, 2).expand(K, A, 2)], dim=-1)
-#
-#     all_anchors = all_anchors.view(-1, 4)
-#
-#     return all_anchors
 
 
 def generate_all_anchors(anchors, H, W):

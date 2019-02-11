@@ -39,7 +39,7 @@ class pascal_voc(imdb):
         self._comp_id = 'comp4'
 
         # PASCAL specific config options
-        self.config = {'cleanup': True,
+        self.config = {'cleanup': False,
                        'use_salt': True,
                        'use_diff': False,
                        'matlab_eval': False,
