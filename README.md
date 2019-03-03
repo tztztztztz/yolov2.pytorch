@@ -26,6 +26,8 @@ This repository aims to learn and understand the YOLO algorithm. I am a beginner
 |this repo|VOC2007+2012|VOC2007|72.7|74.6|
 |original paper|VOC2007+2012|VOC2007|76.8|78.6|
 
+Running time: ~19ms (52FPS) on GTX 1080
+
 
 ## Prerequisites
 - python 3.5.x
